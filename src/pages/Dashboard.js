@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
@@ -13,9 +13,35 @@ export default function Dashboard() {
     upcomingDeadlines: []
   });
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+const [currentUserName, setCurrentUserName] = useState("");
+const [showLogout, setShowLogout] = React.useState(false);
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+useEffect(() => {
+  const userString = localStorage.getItem("user");
+
+  if (userString) {
+    const user = JSON.parse(userString);
+    const firstName = user.name ? user.name.split(" ")[0] : "";
+    setCurrentUserName(capitalize(firstName));
+  }
+  fetchDashboardData();
+}, []);
+
+ const { logout } = useAuth();
+   const navigate = useNavigate();
+
+
+  const handleLogout = async () => {
+    try {
+      await logout();        // call your auth logout
+      navigate('/login');    // navigate after logout
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
 
   const fetchDashboardData = async () => {
     try {
@@ -42,8 +68,34 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          
+        <div className="p-6">
+      <div className="flex justify-between space-x-4">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Welcome To Dashboard {currentUserName}
+        </h1>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowLogout((prev) => !prev)}
+            className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center cursor-pointer select-none"
+            aria-label="User menu"
+          >
+            {currentUserName.charAt(0)}
+          </button>
+
+          {showLogout && (
+            <div className="absolute right-0 mt-2 w-28 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+              <button
+                onClick={handleLogout}
+                className="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
           <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {/* Stats Cards */}
             <div className="bg-white overflow-hidden shadow rounded-lg">

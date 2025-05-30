@@ -9,6 +9,89 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+const [errors, setErrors] = useState({
+  email: "",
+  password: "",
+});
+
+const validateEmailSmartly = (email) => {
+  // Reject multiple '@'
+  const atCount = (email.match(/@/g) || []).length;
+  if (atCount > 1) {
+    return "Please enter a valid email address.";
+  }
+
+  if (!email.includes("@") || email.endsWith("@")) return "";
+
+  const [localPart, domainPart] = email.split("@");
+
+  if (!domainPart || domainPart.length === 0) return "";
+
+  // Disallow invalid special characters in domain (except . and -)
+  if (/[^a-zA-Z0-9.-]/.test(domainPart)) {
+    return "Please enter a valid email address.";
+  }
+
+  // Reject if domain is only numbers
+  if (/^\d+$/.test(domainPart)) {
+    return "Please enter a valid email address.";
+  }
+
+  if (domainPart.includes(".")) {
+    const parts = domainPart.split(".");
+    const domainName = parts[0];
+    const tld = parts[parts.length - 1];
+
+    if (/^\d+$/.test(domainName)) {
+      return "Please enter a valid email address.";
+    }
+
+    // ✅ Don't validate if user is still typing TLD (≤ 3 characters)
+    if (tld.length > 3) {
+      return "Please enter a valid email address.";
+    }
+
+    // ✅ Only run regex check if TLD is 2–3 characters
+    if (tld.length >= 2 && tld.length <= 3) {
+      const fullEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/;
+      if (!fullEmailRegex.test(email)) {
+        return "Please enter a valid email address.";
+      }
+    }
+  }
+
+  return "";
+};
+
+
+
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  if (name === "email") {
+    setEmail(value);
+
+    const errorMessage = validateEmailSmartly(value);
+    setErrors((prev) => ({
+      ...prev,
+      email: errorMessage,
+    }));
+  } else if (name === "password") {
+    setPassword(value);
+
+    // If you want to handle password errors here, add logic
+    // For now, just clear any password error on typing
+    setErrors((prev) => ({
+      ...prev,
+      password: "",
+    }));
+  }
+};
+
+
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,10 +131,13 @@ export default function Login() {
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                 onChange={handleChange}
                   className="input-field"
                 />
               </div>
+               {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -66,7 +152,7 @@ export default function Login() {
                   autoComplete="current-password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handleChange}
                   className="input-field"
                 />
               </div>
