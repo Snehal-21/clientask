@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Layout from '../components/Layout';
 import { MdDelete } from "react-icons/md";
 
 export default function UserManagement() {
@@ -99,7 +100,8 @@ const updateRole = async (userId) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <Layout>
+      <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
@@ -184,5 +186,6 @@ const updateRole = async (userId) => {
         </div>
       </div>
     </div>
+    </Layout>
   );
 }
