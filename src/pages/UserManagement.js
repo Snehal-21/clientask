@@ -1,11 +1,16 @@
+// 
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { MdDelete } from "react-icons/md";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [managers, setManagers] = useState([]);
+  const [selectedRoles, setSelectedRoles] = useState({}); // ✅ role per user
 
   useEffect(() => {
     fetchUsers();
@@ -16,6 +21,14 @@ export default function UserManagement() {
       const response = await axios.get('http://localhost:5000/api/users');
       setUsers(response.data);
       setManagers(response.data.filter(user => user.role === 'manager'));
+
+      // ✅ Initialize selectedRoles with current user roles
+      const initialRoles = {};
+      response.data.forEach(user => {
+        initialRoles[user._id] = user.role;
+      });
+      setSelectedRoles(initialRoles);
+
       setLoading(false);
     } catch (error) {
       toast.error('Failed to fetch users');
@@ -23,23 +36,49 @@ export default function UserManagement() {
     }
   };
 
-  const handleRoleChange = async (userId, newRole) => {
-    try {
-      await axios.patch(`http://localhost:5000/api/users/${userId}/role`, {
-        role: newRole
-      });
-      fetchUsers();
-      toast.success('User role updated successfully');
-    } catch (error) {
-      toast.error('Failed to update user role');
-    }
+  const handleRoleChange = (userId, newRole) => {
+    setSelectedRoles(prev => ({ ...prev, [userId]: newRole }));
   };
+
+ const deleteUser = async (userId) => {
+  try {
+    await axios.delete(`http://localhost:5000/api/users/${userId}`);
+    toast.success('User deleted successfully');
+    fetchUsers();
+  } catch (error) {
+    toast.error('Failed to delete user');
+  }
+};
+
+
+const updateRole = async (userId) => {
+  const newRole = selectedRoles[userId];
+  const currentRole = users.find(user => user._id === userId)?.role;
+
+  // 🔐 Prevent update if role wasn't changed
+  if (!newRole || newRole === currentRole) {
+    return toast.warn('Please select a different role to update.');
+  }
+
+  try {
+    await axios.patch(`http://localhost:5000/api/users/${userId}/role`, {
+      role: newRole,
+    });
+    toast.success('User role updated successfully');
+    fetchUsers();
+  } catch (error) {
+    toast.error('Failed to update user role');
+  }
+};
+
+
+
 
   const handleManagerAssign = async (userId, managerId) => {
     try {
       if (managerId) {
         await axios.patch(`http://localhost:5000/api/users/${userId}/manager`, {
-          managerId
+          managerId,
         });
       } else {
         await axios.delete(`http://localhost:5000/api/users/${userId}/manager`);
@@ -82,10 +121,10 @@ export default function UserManagement() {
                           Role
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Manager
+                          Actions
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
+                          Delete
                         </th>
                       </tr>
                     </thead>
@@ -100,7 +139,7 @@ export default function UserManagement() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <select
-                              value={user.role}
+                              value={selectedRoles[user._id] || 'user'}
                               onChange={(e) => handleRoleChange(user._id, e.target.value)}
                               className="text-sm text-gray-900 border-gray-300 rounded-md"
                             >
@@ -110,20 +149,20 @@ export default function UserManagement() {
                             </select>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <select
-                              value={user.managerId?._id || ''}
-                              onChange={(e) => handleManagerAssign(user._id, e.target.value)}
-                              className="text-sm text-gray-900 border-gray-300 rounded-md"
-                              disabled={user.role === 'admin' || user.role === 'manager'}
+                            <button
+                              onClick={() => updateRole(user._id)}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition duration-200 text-sm"
                             >
-                              <option value="">No Manager</option>
-                              {managers.map(manager => (
-                                <option key={manager._id} value={manager._id}>
-                                  {manager.name}
-                                </option>
-                              ))}
-                            </select>
+                              Update
+                            </button>
                           </td>
+                     <td className="px-10 py-4 whitespace-nowrap">
+  <MdDelete
+    onClick={() => deleteUser(user._id)}
+    className="text-red-600 cursor-pointer hover:text-red-800 text-xl"
+  />
+</td>
+
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {user.managerId ? (
                               <button
@@ -146,4 +185,4 @@ export default function UserManagement() {
       </div>
     </div>
   );
-} 
+}
