@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../contexts/AuthContext';
-import { toast } from 'react-toastify';
-import Layout from '../components/Layout';
-import StatCard from '../components/StatCard';
+import React, { useState, useEffect } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-toastify";
+import Layout from "../components/Layout";
+import StatCard from "../components/StatCard";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -12,12 +12,22 @@ export default function Dashboard() {
     totalTasks: 0,
     pendingTasks: 0,
     completedTasks: 0,
-    upcomingDeadlines: []
+    inprogressTasks: 0,
+    upcomingDeadlines: [],
+  });
+  const [statsUser, setStatsUser] = useState({
+    totalUsers: 0,
+    totalManagers: 0,
+    totalRoleUsers: 0,
+    totalAdmin: 0,
   });
 
   const [currentUserName, setCurrentUserName] = useState("");
   const [showLogout, setShowLogout] = React.useState(false);
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [managers, setManagers] = useState([]);
 
   useEffect(() => {
     const userString = localStorage.getItem("user");
@@ -33,10 +43,35 @@ export default function Dashboard() {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/users");
+      setUsers(response.data);
+      setManagers(response.data.filter((user) => user.role === "manager"));
+      console.log(response.data, "checkresponse");
+      const users = response.data;
+      const stats = {
+        totalUsers: users.filter((user) => user.role !== "admin").length,
+        totalManagers: users.filter((user) => user.role === "manager").length,
+        totalRoleUsers: users.filter((user) => user.role === "user").length,
+        totalAdmin: users.filter((user) => user.role === "admin").length,
+      };
+
+      setStatsUser(stats);
+    } catch (error) {
+      toast.error("Failed to fetch users");
+      // setLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
-      await logout();        // call your auth logout
-      navigate('/login');    // navigate after logout
+      await logout(); // call your auth logout
+      navigate("/login"); // navigate after logout
     } catch (err) {
       console.error(err);
     }
@@ -44,22 +79,25 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/tasks');
+      const response = await axios.get("http://localhost:5000/api/tasks");
       const tasks = response.data;
 
       const stats = {
         totalTasks: tasks.length,
-        pendingTasks: tasks.filter(task => task.status === 'pending').length,
-        completedTasks: tasks.filter(task => task.status === 'completed').length,
+        pendingTasks: tasks.filter((task) => task.status === "pending").length,
+        completedTasks: tasks.filter((task) => task.status === "completed")
+          .length,
+        inprogressTasks: tasks.filter((task) => task.status === "in_progress")
+          .length,
         upcomingDeadlines: tasks
-          .filter(task => task.status !== 'completed')
+          .filter((task) => task.status !== "completed")
           .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-          .slice(0, 5)
+          .slice(0, 5),
       };
 
       setStats(stats);
     } catch (error) {
-      toast.error('Failed to fetch dashboard data');
+      toast.error("Failed to fetch dashboard data");
     }
   };
 
@@ -96,30 +134,64 @@ export default function Dashboard() {
                 </div>
               </div> */}
             </div>
-            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <StatCard 
+            <div className="mt-0 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                title="Total App User"
+                value={statsUser.totalUsers}
+                bgColor="bg-gray-500"
+                textColor="text-white"
+              />
+              <StatCard
+                title="Total Managers"
+                value={statsUser.totalManagers}
+                bgColor="bg-gray-500"
+                textColor="text-white"
+              />
+              <StatCard
+                title="Total users"
+                value={statsUser.totalRoleUsers}
+                bgColor="bg-gray-500"
+                textColor="text-white"
+              />
+              <StatCard
+                title="Total Admin"
+                value={statsUser.totalAdmin}
+                bgColor="bg-gray-500"
+                textColor="text-white"
+              />
+            </div>
+            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCard
                 title="Total Tasks"
                 value={stats.totalTasks}
                 bgColor="bg-blue-500"
                 textColor="text-white"
               />
-              <StatCard 
+              <StatCard
                 title="Pending Tasks"
                 value={stats.pendingTasks}
                 bgColor="bg-yellow-500"
                 textColor="text-white"
               />
-              <StatCard 
+              <StatCard
                 title="Completed Tasks"
                 value={stats.completedTasks}
                 bgColor="bg-green-500"
+                textColor="text-white"
+              />
+              <StatCard
+                title="Inprogress Tasks"
+                value={stats.inprogressTasks}
+                bgColor="bg-orange-500"
                 textColor="text-white"
               />
             </div>
 
             {/* Upcoming Deadlines */}
             <div className="mt-8">
-              <h2 className="text-lg font-medium text-gray-900">Upcoming Deadlines</h2>
+              <h2 className="text-lg font-medium text-gray-900">
+                Upcoming Deadlines
+              </h2>
               <div className="mt-4 bg-white shadow overflow-hidden sm:rounded-md">
                 <ul className="divide-y divide-gray-200">
                   {stats.upcomingDeadlines.map((task) => (
@@ -135,11 +207,15 @@ export default function Dashboard() {
                             </p>
                           </div>
                           <div className="ml-4 flex-shrink-0">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                              task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-green-100 text-green-800'
-                            }`}>
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                task.priority === "high"
+                                  ? "bg-red-100 text-red-800"
+                                  : task.priority === "medium"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-green-100 text-green-800"
+                              }`}
+                            >
                               {task.priority}
                             </span>
                           </div>
@@ -183,4 +259,4 @@ export default function Dashboard() {
       </div>
     </Layout>
   );
-} 
+}
