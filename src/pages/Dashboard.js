@@ -137,35 +137,32 @@ export default function Dashboard() {
                 </div>
               </div> */}
             </div>
-            {user?.role === "admin" && (
-              <div className="mt-0 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                <StatCard
-                  title="Total App User"
-                  value={statsUser.totalUsers}
-                  bgColor="bg-gray-500"
-                  textColor="text-white"
-                />
-                <StatCard
-                  title="Total Managers"
-                  value={statsUser.totalManagers}
-                  bgColor="bg-gray-500"
-                  textColor="text-white"
-                />
-                <StatCard
-                  title="Total users"
-                  value={statsUser.totalRoleUsers}
-                  bgColor="bg-gray-500"
-                  textColor="text-white"
-                />
-                <StatCard
-                  title="Total Admin"
-                  value={statsUser.totalAdmin}
-                  bgColor="bg-gray-500"
-                  textColor="text-white"
-                />
-              </div>
-            )}
-
+            <div className="mt-0 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                title="Total App User"
+                value={statsUser.totalUsers}
+                bgColor="bg-amber-500"
+                textColor="text-white"
+              />
+              <StatCard
+                title="Total Managers"
+                value={statsUser.totalManagers}
+                bgColor="bg-rose-500"
+                textColor="text-white"
+              />
+              <StatCard
+                title="Total users"
+                value={statsUser.totalRoleUsers}
+                bgColor="bg-pink-500"
+                textColor="text-white"
+              />
+              <StatCard
+                title="Total Admin"
+                value={statsUser.totalAdmin}
+                bgColor="bg-purple-500"
+                textColor="text-white"
+              />
+            </div>
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 title="Total Tasks"

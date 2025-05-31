@@ -194,7 +194,12 @@ export default function TaskList() {
                         {currentTasks.map((task) => (
                           <tr key={task._id}>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{task.title}</div>
+                              <Link
+                                to={`/tasks/${task._id}`}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                {task.title}
+                              </Link>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <select
@@ -228,7 +233,6 @@ export default function TaskList() {
                                 <>
                                   <Link
                                     to={`/tasks/${task._id}/edit`}
-                               
                                     className="text-blue-600 hover:text-blue-900 mr-4"
                                   >
                                     Edit
@@ -243,17 +247,15 @@ export default function TaskList() {
                               )}
                             </td>
 
-                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               {(user.role === 'user') && (
                                 <>
                                   <Link
                                     to={`/tasks/${task._id}/edit`}
-                               
                                     className="text-blue-600 hover:text-blue-900 mr-4"
                                   >
                                     Edit
                                   </Link>
-                                 
                                 </>
                               )}
                             </td>
