@@ -44,8 +44,11 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if(user?.role === 'admin'){
+
+      fetchUsers();
+    }
+  }, [user]);
 
   const fetchUsers = async () => {
     try {
@@ -55,7 +58,7 @@ export default function Dashboard() {
       console.log(response.data, "checkresponse");
       const users = response.data;
       const stats = {
-        totalUsers: users.filter((user) => user.role !== "admin").length,
+        totalUsers: users.length,
         totalManagers: users.filter((user) => user.role === "manager").length,
         totalRoleUsers: users.filter((user) => user.role === "user").length,
         totalAdmin: users.filter((user) => user.role === "admin").length,
@@ -134,32 +137,35 @@ export default function Dashboard() {
                 </div>
               </div> */}
             </div>
-            <div className="mt-0 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard
-                title="Total App User"
-                value={statsUser.totalUsers}
-                bgColor="bg-gray-500"
-                textColor="text-white"
-              />
-              <StatCard
-                title="Total Managers"
-                value={statsUser.totalManagers}
-                bgColor="bg-gray-500"
-                textColor="text-white"
-              />
-              <StatCard
-                title="Total users"
-                value={statsUser.totalRoleUsers}
-                bgColor="bg-gray-500"
-                textColor="text-white"
-              />
-              <StatCard
-                title="Total Admin"
-                value={statsUser.totalAdmin}
-                bgColor="bg-gray-500"
-                textColor="text-white"
-              />
-            </div>
+            {user?.role === "admin" && (
+              <div className="mt-0 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                  title="Total App User"
+                  value={statsUser.totalUsers}
+                  bgColor="bg-gray-500"
+                  textColor="text-white"
+                />
+                <StatCard
+                  title="Total Managers"
+                  value={statsUser.totalManagers}
+                  bgColor="bg-gray-500"
+                  textColor="text-white"
+                />
+                <StatCard
+                  title="Total users"
+                  value={statsUser.totalRoleUsers}
+                  bgColor="bg-gray-500"
+                  textColor="text-white"
+                />
+                <StatCard
+                  title="Total Admin"
+                  value={statsUser.totalAdmin}
+                  bgColor="bg-gray-500"
+                  textColor="text-white"
+                />
+              </div>
+            )}
+
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 title="Total Tasks"

@@ -143,6 +143,7 @@ export default function TaskForm() {
                 id="title"
                 value={formData.title}
                 onChange={handleChange}
+                 disabled={user?.role === 'user'}
                 className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -157,6 +158,7 @@ export default function TaskForm() {
                 rows="3"
                 value={formData.description}
                 onChange={handleChange}
+                 disabled={user?.role === 'user'}
                 className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -180,7 +182,7 @@ export default function TaskForm() {
               </div>
 
               <div>
-                <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="priority"  disabled={user?.role === 'user'} className="block text-sm font-medium text-gray-700">
                   Priority
                 </label>
                 <select
@@ -188,6 +190,7 @@ export default function TaskForm() {
                   id="priority"
                   value={formData.priority}
                   onChange={handleChange}
+                   disabled={user?.role === 'user'}
                   className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="low">Low</option>
@@ -208,6 +211,7 @@ export default function TaskForm() {
                   id="dueDate"
                   value={formData.dueDate}
                   onChange={handleChange}
+                   disabled={user?.role === 'user'}
                   className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -222,6 +226,7 @@ export default function TaskForm() {
                   id="reminderAt"
                   value={formData.reminderAt}
                   onChange={handleChange}
+                   disabled={user?.role === 'user'}
                   className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
