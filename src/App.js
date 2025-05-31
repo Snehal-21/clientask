@@ -50,7 +50,7 @@ function App() {
           <Route
             path="/tasks/:id/edit"
             element={
-              <ProtectedRoute roles={['admin', 'manager']}>
+              <ProtectedRoute roles={['admin', 'manager','user']}>
                 <TaskForm />
               </ProtectedRoute>
             }
