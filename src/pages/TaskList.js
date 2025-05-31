@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
+import ConfirmationModal from '../components/ConfirmationModal';
+import Pagination from '../components/Pagination';
 
 export default function TaskList() {
   const { user } = useAuth();
@@ -16,6 +18,12 @@ export default function TaskList() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const tasksPerPage = 10;
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -59,15 +67,36 @@ export default function TaskList() {
   };
 
   const handleDelete = async (taskId) => {
-    if (!window.confirm('Are you sure you want to delete this task?')) return;
+    setModalConfig({
+      isOpen: true,
+      title: 'Delete Task',
+      message: 'Are you sure you want to delete this task? This action cannot be undone.',
+      onConfirm: async () => {
+        try {
+          await axios.delete(`http://localhost:5000/api/tasks/${taskId}`);
+          fetchTasks();
+          toast.success('Task deleted successfully');
+          setModalConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          toast.error('Failed to delete task');
+        }
+      }
+    });
+  };
 
-    try {
-      await axios.delete(`http://localhost:5000/api/tasks/${taskId}`);
-      fetchTasks();
-      toast.success('Task deleted successfully');
-    } catch (error) {
-      toast.error('Failed to delete task');
-    }
+  const handleEdit = (taskId) => {
+    setModalConfig({
+      isOpen: true,
+      title: 'Edit Task',
+      message: 'Are you sure you want to edit this task?',
+      onConfirm: () => {
+        window.location.href = `/tasks/${taskId}/edit`;
+      }
+    });
+  };
+
+  const closeModal = () => {
+    setModalConfig(prev => ({ ...prev, isOpen: false }));
   };
 
   // Pagination
@@ -104,7 +133,7 @@ export default function TaskList() {
                 name="status"
                 value={filters.status}
                 onChange={handleFilterChange}
-                className="input-field"
+                className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
@@ -116,7 +145,7 @@ export default function TaskList() {
                 name="priority"
                 value={filters.priority}
                 onChange={handleFilterChange}
-                className="input-field"
+                className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Priorities</option>
                 <option value="low">Low</option>
@@ -129,7 +158,7 @@ export default function TaskList() {
                 name="dueDate"
                 value={filters.dueDate}
                 onChange={handleFilterChange}
-                className="input-field"
+                className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -197,12 +226,12 @@ export default function TaskList() {
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               {(user.role === 'admin' || user.role === 'manager') && (
                                 <>
-                                  <Link
-                                    to={`/tasks/${task._id}/edit`}
+                                  <button
+                                    onClick={() => handleEdit(task._id)}
                                     className="text-blue-600 hover:text-blue-900 mr-4"
                                   >
                                     Edit
-                                  </Link>
+                                  </button>
                                   <button
                                     onClick={() => handleDelete(task._id)}
                                     className="text-red-600 hover:text-red-900"
@@ -222,27 +251,23 @@ export default function TaskList() {
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-4 flex justify-center">
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                        currentPage === page
-                          ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </nav>
-              </div>
+            {totalPages >= 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             )}
           </div>
         </div>
+        
+        <ConfirmationModal
+          isOpen={modalConfig.isOpen}
+          onClose={closeModal}
+          onConfirm={modalConfig.onConfirm}
+          title={modalConfig.title}
+          message={modalConfig.message}
+        />
       </div>
     </Layout>
   );

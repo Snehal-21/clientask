@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
+import StatCard from '../components/StatCard';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -96,27 +97,24 @@ export default function Dashboard() {
               </div> */}
             </div>
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Stats Cards */}
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Tasks</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">{stats.totalTasks}</dd>
-                </div>
-              </div>
-
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Pending Tasks</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">{stats.pendingTasks}</dd>
-                </div>
-              </div>
-
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <dt className="text-sm font-medium text-gray-500 truncate">Completed Tasks</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">{stats.completedTasks}</dd>
-                </div>
-              </div>
+              <StatCard 
+                title="Total Tasks"
+                value={stats.totalTasks}
+                bgColor="bg-blue-500"
+                textColor="text-white"
+              />
+              <StatCard 
+                title="Pending Tasks"
+                value={stats.pendingTasks}
+                bgColor="bg-yellow-500"
+                textColor="text-white"
+              />
+              <StatCard 
+                title="Completed Tasks"
+                value={stats.completedTasks}
+                bgColor="bg-green-500"
+                textColor="text-white"
+              />
             </div>
 
             {/* Upcoming Deadlines */}

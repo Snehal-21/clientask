@@ -6,12 +6,22 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
 import { MdDelete } from "react-icons/md";
+import ConfirmationModal from '../components/ConfirmationModal';
+import Pagination from '../components/Pagination';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [managers, setManagers] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState({}); // ✅ role per user
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -42,14 +52,22 @@ export default function UserManagement() {
   };
 
  const deleteUser = async (userId) => {
-  try {
-    await axios.delete(`http://localhost:5000/api/users/${userId}`);
-    toast.success('User deleted successfully');
-    fetchUsers();
-  } catch (error) {
-    toast.error('Failed to delete user');
-  }
-};
+    setModalConfig({
+      isOpen: true,
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user? This action cannot be undone.',
+      onConfirm: async () => {
+        try {
+          await axios.delete(`http://localhost:5000/api/users/${userId}`);
+          toast.success('User deleted successfully');
+          fetchUsers();
+          setModalConfig(prev => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          toast.error('Failed to delete user');
+        }
+      }
+    });
+  };
 
 
 const updateRole = async (userId) => {
@@ -61,15 +79,23 @@ const updateRole = async (userId) => {
     return toast.warn('Please select a different role to update.');
   }
 
-  try {
-    await axios.patch(`http://localhost:5000/api/users/${userId}/role`, {
-      role: newRole,
-    });
-    toast.success('User role updated successfully');
-    fetchUsers();
-  } catch (error) {
-    toast.error('Failed to update user role');
-  }
+  setModalConfig({
+    isOpen: true,
+    title: 'Update User Role',
+    message: `Are you sure you want to change this user's role to ${newRole}?`,
+    onConfirm: async () => {
+      try {
+        await axios.patch(`http://localhost:5000/api/users/${userId}/role`, {
+          role: newRole,
+        });
+        toast.success('User role updated successfully');
+        fetchUsers();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      } catch (error) {
+        toast.error('Failed to update user role');
+      }
+    }
+  });
 };
 
 
@@ -90,6 +116,16 @@ const updateRole = async (userId) => {
       toast.error('Failed to update manager assignment');
     }
   };
+
+  const closeModal = () => {
+    setModalConfig(prev => ({ ...prev, isOpen: false }));
+  };
+
+  // Pagination
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(users.length / usersPerPage);
 
   if (loading) {
     return (
@@ -131,7 +167,7 @@ const updateRole = async (userId) => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {users.map((user) => (
+                      {currentUsers.map((user) => (
                         <tr key={user._id}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -147,7 +183,7 @@ const updateRole = async (userId) => {
                             >
                               <option value="user">User</option>
                               <option value="manager">Manager</option>
-                              <option value="admin">Admin</option>
+                              {/* <option value="admin">Admin</option> */}
                             </select>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -183,8 +219,24 @@ const updateRole = async (userId) => {
               </div>
             </div>
           </div>
+
+          {/* Pagination */}
+          {totalPages >= 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={modalConfig.isOpen}
+        onClose={closeModal}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+      />
     </div>
     </Layout>
   );
