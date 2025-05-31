@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import TaskList from './pages/TaskList';
 import TaskForm from './pages/TaskForm';
 import UserManagement from './pages/UserManagement';
+import TaskDetail from './pages/TaskDetail';
 
 function App() {
   return (
@@ -54,6 +55,15 @@ function App() {
             element={
               <ProtectedRoute roles={['admin', 'manager','user']}>
                 <TaskForm />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/tasks/:id"
+            element={
+              <ProtectedRoute>
+                <TaskDetail />
               </ProtectedRoute>
             }
           />
