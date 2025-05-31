@@ -116,7 +116,7 @@ export default function TaskList() {
   return (
     <Layout>
       <div className="min-h-screen bg-gray-100">
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             {/* <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
@@ -128,7 +128,7 @@ export default function TaskList() {
             </div> */}
 
             {/* Filters */}
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <select
                 name="status"
                 value={filters.status}
@@ -185,6 +185,9 @@ export default function TaskList() {
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Assigned To
                           </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Created by
+                          </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Actions
                           </th>
@@ -227,6 +230,9 @@ export default function TaskList() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {task.assignedTo.name}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {task.createdBy.name}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               {(user.role === 'admin' || user.role === 'manager') && (

@@ -137,6 +137,7 @@ export default function Dashboard() {
                 </div>
               </div> */}
             </div>
+            {user?.role === 'admin' && (
             <div className="mt-0 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 title="Total App User"
@@ -163,6 +164,7 @@ export default function Dashboard() {
                 textColor="text-white"
               />
             </div>
+            )}
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 title="Total Tasks"
