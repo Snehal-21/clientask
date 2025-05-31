@@ -226,18 +226,34 @@ export default function TaskList() {
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               {(user.role === 'admin' || user.role === 'manager') && (
                                 <>
-                                  <button
-                                    onClick={() => handleEdit(task._id)}
+                                  <Link
+                                    to={`/tasks/${task._id}/edit`}
+                               
                                     className="text-blue-600 hover:text-blue-900 mr-4"
                                   >
                                     Edit
-                                  </button>
+                                  </Link>
                                   <button
                                     onClick={() => handleDelete(task._id)}
                                     className="text-red-600 hover:text-red-900"
                                   >
                                     Delete
                                   </button>
+                                </>
+                              )}
+                            </td>
+
+                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              {(user.role === 'user') && (
+                                <>
+                                  <Link
+                                    to={`/tasks/${task._id}/edit`}
+                               
+                                    className="text-blue-600 hover:text-blue-900 mr-4"
+                                  >
+                                    Edit
+                                  </Link>
+                                 
                                 </>
                               )}
                             </td>
