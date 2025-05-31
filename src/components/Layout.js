@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { FaHome, FaTasks, FaPlus, FaUsers, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { FaHome, FaTasks, FaPlus, FaUsers, FaSignOutAlt, FaBars, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -22,6 +22,13 @@ const Layout = ({ children }) => {
     navigate(path);
   }, [navigate]);
 
+  const menuItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: FaHome },
+    { path: '/tasks', label: 'Tasks', icon: FaTasks },
+    ...(user.role === 'admin' || user.role === 'manager' ? [{ path: '/tasks/new', label: 'Create Task', icon: FaPlus }] : []),
+    ...(user.role === 'admin' ? [{ path: '/users', label: 'Manage Users', icon: FaUsers }] : [])
+  ];
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Mobile Sidebar Overlay */}
@@ -33,72 +40,46 @@ const Layout = ({ children }) => {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-b from-blue-600 to-blue-800 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      <div className={`fixed inset-y-0 left-0 z-30 bg-gradient-to-b from-blue-600 to-blue-800 text-white transform transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'w-64' : 'w-16'
       }`}>
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <h2 className="text-xl font-bold">Navigation</h2>
-            <button 
-              onClick={() => setIsSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-md hover:bg-white/10"
-            >
-              <FaTimes className="w-5 h-5" />
-            </button>
+            <div className="flex items-center">
+              <button 
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="p-2 rounded-md hover:bg-white/10 transition-colors duration-200 mr-3"
+              >
+                {isSidebarOpen ? <FaChevronLeft className="w-5 h-5" /> : <FaChevronRight className="w-5 h-5" />}
+              </button>
+              <h2 className={`text-xl font-bold transition-all duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
+                TaskFlow
+              </h2>
+            </div>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 p-4">
             <ul>
-              <li className="mb-2">
-                <button 
-                  onClick={() => handleNavigation('/dashboard')} 
-                  className={`flex items-center w-full text-left p-2 hover:bg-white/10 rounded transition-colors duration-200 ${
-                    location.pathname === '/dashboard' ? 'bg-white/20' : ''
-                  }`}
-                >
-                  <FaHome className="w-5 h-5 mr-3" />
-                  Dashboard
-                </button>
-              </li>
-              <li className="mb-2">
-                <button 
-                  onClick={() => handleNavigation('/tasks')} 
-                  className={`flex items-center w-full text-left p-2 hover:bg-white/10 rounded transition-colors duration-200 ${
-                    location.pathname === '/tasks' ? 'bg-white/20' : ''
-                  }`}
-                >
-                  <FaTasks className="w-5 h-5 mr-3" />
-                  Tasks
-                </button>
-              </li>
-              {(user.role === 'admin' || user.role === 'manager') && (
-                <li className="mb-2">
+              {menuItems.map((item) => (
+                <li key={item.path} className="mb-2">
                   <button 
-                    onClick={() => handleNavigation('/tasks/new')} 
-                    className={`flex items-center w-full text-left p-2 hover:bg-white/10 rounded transition-colors duration-200 ${
-                      location.pathname === '/tasks/new' ? 'bg-white/20' : ''
+                    onClick={() => handleNavigation(item.path)} 
+                    className={`group flex items-center w-full text-left p-2 hover:bg-white/10 rounded transition-colors duration-200 ${
+                      location.pathname === item.path ? 'bg-white/20' : ''
                     }`}
                   >
-                    <FaPlus className="w-5 h-5 mr-3" />
-                    Create Task
+                    <item.icon className="w-5 h-5" />
+                    {isSidebarOpen && <span className="ml-3">{item.label}</span>}
+                    {!isSidebarOpen && (
+                      <div className="absolute left-16 bg-gray-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                        {item.label}
+                      </div>
+                    )}
                   </button>
                 </li>
-              )}
-              {user.role === 'admin' && (
-                <li className="mb-2">
-                  <button 
-                    onClick={() => handleNavigation('/users')} 
-                    className={`flex items-center w-full text-left p-2 hover:bg-white/10 rounded transition-colors duration-200 ${
-                      location.pathname === '/users' ? 'bg-white/20' : ''
-                    }`}
-                  >
-                    <FaUsers className="w-5 h-5 mr-3" />
-                    Manage Users
-                  </button>
-                </li>
-              )}
+              ))}
             </ul>
           </nav>
 
@@ -106,17 +87,22 @@ const Layout = ({ children }) => {
           <div className="p-4 border-t border-white/10">
             <button
               onClick={handleLogout}
-              className="flex items-center w-full p-2 text-white hover:bg-white/10 rounded transition-colors duration-200"
+              className="group flex items-center w-full p-2 text-white hover:bg-white/10 rounded transition-colors duration-200"
             >
-              <FaSignOutAlt className="w-5 h-5 mr-3" />
-              Logout
+              <FaSignOutAlt className="w-5 h-5" />
+              {isSidebarOpen && <span className="ml-3">Logout</span>}
+              {!isSidebarOpen && (
+                <div className="absolute left-16 bg-gray-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                  Logout
+                </div>
+              )}
             </button>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'ml-0'}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-16'}`}>
         {/* Titlebar */}
         <header className="bg-white shadow p-4 flex justify-between items-center">
           <div className="flex items-center">
@@ -130,13 +116,6 @@ const Layout = ({ children }) => {
               Welcome, {user.name} <span className="text-blue-600 text-lg font-normal">({user.role})</span>
             </h1>
           </div>
-          {/* <button 
-            onClick={handleLogout} 
-            className="flex items-center px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-200"
-          >
-            <FaSignOutAlt className="w-5 h-5 mr-2" />
-            Logout
-          </button> */}
         </header>
 
         {/* Page Content */}
