@@ -138,25 +138,25 @@ export default function Dashboard() {
               <StatCard
                 title="Total App User"
                 value={statsUser.totalUsers}
-                bgColor="bg-gray-500"
+                bgColor="bg-amber-500"
                 textColor="text-white"
               />
               <StatCard
                 title="Total Managers"
                 value={statsUser.totalManagers}
-                bgColor="bg-gray-500"
+                bgColor="bg-rose-500"
                 textColor="text-white"
               />
               <StatCard
                 title="Total users"
                 value={statsUser.totalRoleUsers}
-                bgColor="bg-gray-500"
+                bgColor="bg-pink-500"
                 textColor="text-white"
               />
               <StatCard
                 title="Total Admin"
                 value={statsUser.totalAdmin}
-                bgColor="bg-gray-500"
+                bgColor="bg-purple-500"
                 textColor="text-white"
               />
             </div>
