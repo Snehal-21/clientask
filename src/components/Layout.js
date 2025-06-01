@@ -26,7 +26,7 @@ const Layout = ({ children }) => {
     { path: '/dashboard', label: 'Dashboard', icon: FaHome },
     { path: '/tasks', label: 'Tasks', icon: FaTasks },
     ...(user.role === 'admin' || user.role === 'manager' ? [{ path: '/tasks/new', label: 'Create Task', icon: FaPlus }] : []),
-    ...(user.role === 'admin' ? [{ path: '/users', label: 'Manage Users', icon: FaUsers }] : [])
+    ...(user.role === 'admin' || user.role === 'manager' ? [{ path: '/users', label: 'Manage Users', icon: FaUsers }] : [])
   ];
 
   return (
