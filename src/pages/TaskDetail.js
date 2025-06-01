@@ -5,6 +5,7 @@ import { FaArrowLeft, FaSpinner, FaCalendarAlt, FaUser, FaFlag, FaClock, FaCheck
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
+import { getApiUrl } from '../config/api';
 
 const TaskDetail = () => {
   const { id } = useParams();
@@ -21,7 +22,7 @@ const TaskDetail = () => {
 
   const fetchTaskDetails = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/tasks/${id}`, {
+      const response = await axios.get(getApiUrl(`/tasks/${id}`), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -40,7 +41,7 @@ const TaskDetail = () => {
     try {
       setUpdating(true);
       const response = await axios.patch(
-        `http://localhost:5000/api/tasks/${id}/status`,
+        getApiUrl(`/tasks/${id}/status`),
         { status: newStatus },
         {
           headers: {

@@ -8,6 +8,7 @@ import Layout from '../components/Layout';
 import { MdDelete } from "react-icons/md";
 import ConfirmationModal from '../components/ConfirmationModal';
 import Pagination from '../components/Pagination';
+import { getApiUrl } from '../config/api';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -29,7 +30,7 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/users');
+      const response = await axios.get(getApiUrl('/users'));
       setUsers(response.data);
       setManagers(response.data.filter(user => user.role === 'manager'));
 
@@ -58,7 +59,7 @@ export default function UserManagement() {
       message: 'Are you sure you want to delete this user? This action cannot be undone.',
       onConfirm: async () => {
         try {
-          await axios.delete(`http://localhost:5000/api/users/${userId}`);
+          await axios.delete(getApiUrl(`/users/${userId}`));
           toast.success('User deleted successfully');
           fetchUsers();
           setModalConfig(prev => ({ ...prev, isOpen: false }));
@@ -85,7 +86,7 @@ const updateRole = async (userId) => {
     message: `Are you sure you want to change this user's role to ${newRole}?`,
     onConfirm: async () => {
       try {
-        await axios.patch(`http://localhost:5000/api/users/${userId}/role`, {
+        await axios.patch(getApiUrl(`/users/${userId}/role`), {
           role: newRole,
         });
         toast.success('User role updated successfully');
@@ -104,11 +105,11 @@ const updateRole = async (userId) => {
   const handleManagerAssign = async (userId, managerId) => {
     try {
       if (managerId) {
-        await axios.patch(`http://localhost:5000/api/users/${userId}/manager`, {
+        await axios.patch(getApiUrl(`/users/${userId}/manager`), {
           managerId,
         });
       } else {
-        await axios.delete(`http://localhost:5000/api/users/${userId}/manager`);
+        await axios.delete(getApiUrl(`/users/${userId}/manager`));
       }
       fetchUsers();
       toast.success('Manager assignment updated successfully');

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
+import { getApiUrl } from '../config/api';
 
 export default function TaskForm() {
    const { user } = useAuth();
@@ -22,30 +23,30 @@ export default function TaskForm() {
   });
 
   const fetchTask = useCallback(async () => {
-  try {
-    console.log(user,"ididididi")
-    const response = await axios.get(`http://localhost:5000/api/tasks/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+    try {
+      console.log(user,"ididididi")
+      const response = await axios.get(getApiUrl(`/tasks/${id}`), {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
 
-    const task = response.data;
+      const task = response.data;
 
-    setFormData({
-      title: task.title,
-      description: task.description,
-      status: task.status,
-      priority: task.priority,
-      dueDate: new Date(task.dueDate).toISOString().split('T')[0],
-      reminderAt: new Date(task.reminderAt).toISOString().split('T')[0],
-      assignedTo: task.assignedTo?._id || ''
-    });
-  } catch (error) {
-    toast.error('Failed to fetch task');
-    navigate('/tasks');
-  }
-}, [id, navigate]);
+      setFormData({
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        dueDate: new Date(task.dueDate).toISOString().split('T')[0],
+        reminderAt: new Date(task.reminderAt).toISOString().split('T')[0],
+        assignedTo: task.assignedTo?._id || ''
+      });
+    } catch (error) {
+      toast.error('Failed to fetch task');
+      navigate('/tasks');
+    }
+  }, [id, navigate]);
 
 
   // const fetchTask = useCallback(async () => {
@@ -79,7 +80,7 @@ export default function TaskForm() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/users/available', {
+      const response = await axios.get(getApiUrl('/users/available'), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -110,10 +111,10 @@ export default function TaskForm() {
     setLoading(true);
     try {
       if (id) {
-        await axios.put(`http://localhost:5000/api/tasks/${id}`, formData);
+        await axios.put(getApiUrl(`/tasks/${id}`), formData);
         toast.success('Task updated successfully');
       } else {
-        await axios.post('http://localhost:5000/api/tasks', formData);
+        await axios.post(getApiUrl('/tasks'), formData);
         toast.success('Task created successfully');
       }
       // navigate('/tasks');

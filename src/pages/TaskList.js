@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
 import ConfirmationModal from '../components/ConfirmationModal';
 import Pagination from '../components/Pagination';
+import { getApiUrl } from '../config/api';
 
 export default function TaskList() {
   const { user } = useAuth();
@@ -32,7 +33,7 @@ export default function TaskList() {
       if (filters.priority) queryParams.append('priority', filters.priority);
       if (filters.dueDate) queryParams.append('dueDate', filters.dueDate);
 
-      const response = await axios.get(`http://localhost:5000/api/tasks?${queryParams}`);
+      const response = await axios.get(getApiUrl(`/tasks?${queryParams}`));
       setTasks(response.data);
       setLoading(false);
     } catch (error) {
@@ -56,7 +57,7 @@ export default function TaskList() {
 
   const handleStatusChange = async (taskId, newStatus) => {
     try {
-      await axios.patch(`http://localhost:5000/api/tasks/${taskId}/status`, {
+      await axios.patch(getApiUrl(`/tasks/${taskId}/status`), {
         status: newStatus
       });
       fetchTasks();
@@ -73,7 +74,7 @@ export default function TaskList() {
       message: 'Are you sure you want to delete this task? This action cannot be undone.',
       onConfirm: async () => {
         try {
-          await axios.delete(`http://localhost:5000/api/tasks/${taskId}`);
+          await axios.delete(getApiUrl(`/tasks/${taskId}`));
           fetchTasks();
           toast.success('Task deleted successfully');
           setModalConfig(prev => ({ ...prev, isOpen: false }));

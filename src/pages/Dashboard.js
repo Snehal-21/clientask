@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import Layout from "../components/Layout";
 import StatCard from "../components/StatCard";
+import { getApiUrl } from '../config/api';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -52,7 +53,7 @@ export default function Dashboard() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/users");
+      const response = await axios.get(getApiUrl('/users'));
       setUsers(response.data);
       setManagers(response.data.filter((user) => user.role === "manager"));
       console.log(response.data, "checkresponse");
@@ -67,7 +68,6 @@ export default function Dashboard() {
       setStatsUser(stats);
     } catch (error) {
       toast.error("Failed to fetch users");
-      // setLoading(false);
     }
   };
 
@@ -82,7 +82,7 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/tasks");
+      const response = await axios.get(getApiUrl('/tasks'));
       const tasks = response.data;
 
       const stats = {
